@@ -5,17 +5,24 @@
 @endphp
 
 @section('content')
-<form class="row g-3">
-  <div class="col-auto">
-    <label for="staticEmail2" class="visually-hidden">Email</label>
-    <input type="text" readonly class="form-control-plaintext" id="staticEmail2" value="email@example.com">
+<div class="container">
+  <div class="row">
+    <div class="col"></div>
+    <div class="col-6 text-center">
+      <form class="align-items-center" action="{{ route('authenticate_user') }}" method="POST">
+        @csrf
+        <div class="mb-3">
+          <input type="text" class="form-control" id="txtEmail" name="txtEmail" placeholder="Email">
+        </div>
+        <div class="mb-3">
+          <input type="password" class="form-control" id="txtPassword" name="txtPassword" placeholder="Password">
+        </div>
+        <div class="mb-3">
+          <button type="submit" class="btn btn-primary mb-3">Login</button>
+        </div>
+      </form>
+    </div>
+    <div class="col"></div>
   </div>
-  <div class="col-auto">
-    <label for="inputPassword2" class="visually-hidden">Password</label>
-    <input type="password" class="form-control" id="inputPassword2" placeholder="Password">
-  </div>
-  <div class="col-auto">
-    <button type="submit" class="btn btn-primary mb-3">Confirm identity</button>
-  </div>
-</form>
+</div>
 @endsection
