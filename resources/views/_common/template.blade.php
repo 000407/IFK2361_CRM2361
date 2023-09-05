@@ -88,7 +88,7 @@
           $.toast({
               heading: "{{ session()->get('level') }}",
               text: "{{ session()->get('message') }}",
-              icon: 'info',
+              icon: "{{ strtolower(session()->get('level')) }}",
               loader: true,        // Change it to false to disable loader
               loaderBg: '#9EC600'  // To change the background
           });
