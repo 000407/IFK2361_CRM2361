@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,9 +27,12 @@ class UserController extends Controller
 				'password' => $req->input('txtPassword')
 			];
 
+			// Role::where('name', 'USER') == SELECT * FROM roles WHERE name='USER'
+			$role_user = Role::where('name', 'USER')->first();
+
 			$user = User::create($userData);
 
-			$user->roles()->attach(3); // BAD: This might break in the future
+			$user->roles()->attach($role_user->id);
 
 			DB::commit(); // End the started transaction
 		} catch (Throwable $e) {
