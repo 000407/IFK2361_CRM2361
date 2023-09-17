@@ -82,6 +82,7 @@
               </div>
           </div>
         </div>
+        <script type="text/javascript" src="{{ asset('js/axios.min.js') }}"></script>
         <script type="text/javascript" src="{{ asset('js/jquery.toast.min.js') }}"></script>
         @if (session()->get('message'))
         <script type="text/javascript">
@@ -94,5 +95,11 @@
           });
         </script>
         @endif
+        <script type="text/javascript">
+          if (axios) {
+            console.log('Customizing axios...');
+            axios.defaults.baseURL = "{{ url('/') }}";
+          }
+        </script>
     </body>
 </html>

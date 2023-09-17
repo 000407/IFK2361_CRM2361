@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,14 +15,25 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Login page
-Route::get('/login', function() {
-	return view('auth/login');
-})->name('login_page');
+Route::group([], function() {
+	// Login page
+	Route::get('/login', function() {
+		return view('auth/login');
+	})->name('login_page');
+
+	// Password reset page
+	Route::get('/password/reset', function() {
+		return view('auth/pw_reset');
+	})->name('pw_reset_page');
+
+	// Registration page
+	Route::get('/register', function() {
+		return view('auth/register');
+	})->name('register_page');
+});
 
 Route::controller(UserController::class)
 	->prefix('user')
-	// ->middleware(['auth.authorize:admin,root'])
 	->group(function() {
 		// Process login
 		Route::post('/authenticate', 'authenticate')
@@ -30,13 +42,26 @@ Route::controller(UserController::class)
 		// Process registration
 		Route::post('/register', 'register')
 			->name('register_user');
+
+		// Sign out
+		Route::get('/logout', 'sign_out')
+			->name('sign_out');
+
+		// Process password reset
+		Route::post('/password/reset', 'resetPassword')
+			->name('reset_password');
 	});
 
-// Registration page
-Route::get('/register', function() {
-	return view('auth/register');
-})->name('register_page');
+Route::controller(AdminController::class)
+	->prefix('administration')
+	->middleware(['auth.authorize:ADMIN,ROOT'])
+	->group(function() {
+		// Dashboard
+		Route::get('/', function() {
+			return view('admin/dashboard');
+		})->name('dashboard_page');
+	});
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome_page');

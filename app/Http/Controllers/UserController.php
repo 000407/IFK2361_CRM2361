@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Password;
 use \Throwable;
 
 class UserController extends Controller
@@ -83,6 +84,32 @@ class UserController extends Controller
 		}
 		
 		return redirect()->route($targetRoute)->with($responseData);
+	}
+
+	public function resetPassword(Request $req) {
+		$status = 200;
+		$responseData = [
+			'message' => 'Please check your email!'
+		];
+
+		try {
+			$email = $req->json()->all()['email'];
+
+			if (User::where('email', $email)->exists()) {
+				$status = Password::sendResetLink(
+					$request->only('email')
+				);
+			}
+		} catch (Throwable $e) {
+			report($e);
+			
+			$status = 500;
+			$responseData = [
+				'message' => 'An internal error occurred!'
+			];
+		}
+
+		return response()->json($responseData, $status);
 	}
 
 	public function sign_out(Request $req) {
