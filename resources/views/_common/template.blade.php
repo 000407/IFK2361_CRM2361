@@ -12,10 +12,19 @@
 
         <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.min.css') }}" />
         <link rel="stylesheet" type="text/css" href="{{ asset('css/jquery.toast.min.css') }}" />
+        @stack('head_styles')
 
         <script type="text/javascript" src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
         <script type="text/javascript" src="{{ asset('js/jquery.min.js') }}"></script>
-        
+        <script type="text/javascript" src="{{ asset('js/axios.min.js') }}"></script>
+        <script type="text/javascript">
+          if (axios) {
+            console.log('Customizing axios...');
+            axios.defaults.baseURL = "{{ url('/') }}";
+          }
+        </script>
+
+        @stack('head_scripts')
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -82,7 +91,7 @@
               </div>
           </div>
         </div>
-        <script type="text/javascript" src="{{ asset('js/axios.min.js') }}"></script>
+        
         <script type="text/javascript" src="{{ asset('js/jquery.toast.min.js') }}"></script>
         @if (session()->get('message'))
         <script type="text/javascript">
@@ -95,11 +104,5 @@
           });
         </script>
         @endif
-        <script type="text/javascript">
-          if (axios) {
-            console.log('Customizing axios...');
-            axios.defaults.baseURL = "{{ url('/') }}";
-          }
-        </script>
     </body>
 </html>

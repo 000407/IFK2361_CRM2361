@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -61,6 +62,16 @@ Route::controller(AdminController::class)
 			return view('admin/dashboard');
 		})->name('dashboard_page');
 	});
+
+Route::controller(ProductController::class)
+	->prefix('products')
+	->group(function() {
+		Route::prefix('api')
+			->group(function() {
+				Route::get('/all', 'getAllProducts')->name('get_all_products');
+			});
+	});
+
 
 Route::get('/', function () {
     return view('welcome');

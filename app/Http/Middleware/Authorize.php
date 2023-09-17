@@ -19,7 +19,7 @@ class Authorize
     $user = Auth::user();
 
     if ($user == null) {
-      echo("Not Authenticated");
+      abort(403);
     } else {
       $userRoles = [];
 
