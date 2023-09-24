@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\NotFoundException;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +14,13 @@ use \Throwable;
 
 class UserController extends Controller
 {
+  protected $userService;
+  
+  public function __construct(UserService $userService)
+  {
+      $this->userService = $userService;
+  }
+
 	public function register(Request $req) {
 		$responseData = [
 			'level' => 'INFO',
@@ -19,28 +28,9 @@ class UserController extends Controller
 		];
 
 		try {
-			DB::beginTransaction(); // Begin a transaction
-			
-			$userData = [
-				'first_name' => $req->input('txtFname'),
-				'last_name' => $req->input('txtLname'),
-				'email' => $req->input('txtEmail'),
-				'password' => $req->input('txtPassword')
-			];
-
-			// Role::where('name', 'USER') == SELECT * FROM roles WHERE name='USER'
-			$role_user = Role::where('name', 'USER')->first();
-
-			$user = User::create($userData);
-
-			$user->roles()->attach($role_user->id);
-
-			DB::commit(); // End the started transaction
+			$this->userService->register($req);
 		} catch (Throwable $e) {
-			DB::rollBack(); // Rollback the already started transaction
-			
-			report($e);
-			
+      report($e);
 			$responseData = [
 				'level' => 'ERROR',
 				'message' => 'An internal error occurred!'
@@ -51,32 +41,22 @@ class UserController extends Controller
 	}
 
 	public function authenticate(Request $req) {
-		$targetRoute = 'welcome_page';
+		$targetRoute = 'login_page';
 		$responseData = [];
 
 		try {	
-			$email = $req->input('txtEmail');
-			$password = $req->input('txtPassword');
+			$this->userService->authenticate($req);
+      $targetRoute = 'welcome_page';
+		} catch (NotFoundException $e) {
+      report($e);
 
-			$user = User::where('email', $email)->first();
-
-			if ($user != null && password_verify($password, $user->password)) {
-				// Valid user
-				// Set the sessions
-				Auth::login($user);
-				// Redirect the user to the target location or home page
-			} else {
-				$targetRoute = 'login_page';
-				$responseData = [
-					'level' => 'ERROR',
-					'message' => 'Invalid credentials!'
-				];
-			}
-
-		} catch (Throwable $e) {
+      $responseData = [
+        'level' => 'ERROR',
+        'message' => 'Invalid credentials!'
+      ];
+    } catch (Throwable $e) {
 			report($e);
-			
-			$targetRoute = 'login_page';
+
 			$responseData = [
 				'level' => 'ERROR',
 				'message' => 'An internal error occurred!'
@@ -93,13 +73,7 @@ class UserController extends Controller
 		];
 
 		try {
-			$email = $req->json()->all()['email'];
-
-			if (User::where('email', $email)->exists()) {
-				$status = Password::sendResetLink(
-					$request->only('email')
-				);
-			}
+			$this->userService->initiatePasswordReset($req);
 		} catch (Throwable $e) {
 			report($e);
 			
@@ -113,13 +87,8 @@ class UserController extends Controller
 	}
 
 	public function sign_out(Request $req) {
-		$targetRoute = 'welcome_page';
-		$responseData = [];
-
-		Auth::logout();
-		$req->session()->invalidate();
-		$req->session()->regenerateToken();
+		$this->userService->signOut();
 		
-		return redirect()->route($targetRoute)->with($responseData);
+		return redirect()->route('welcome_page')->with($[]);
 	}
 }
